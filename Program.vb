@@ -2,8 +2,6 @@ Imports System
 Imports MySql.Data.MySqlClient
 
 Module Program
-    Dim connectionString As String = "Server=localhost;Database=testdb;User Id=root;Password=10Tongdung@10;"
-
     Sub Main()
         Dim choice As Integer
 
@@ -118,8 +116,12 @@ Module Program
     End Sub
 
     Sub DeleteData()
-        Using conn As New MySqlConnection(connectionString)
-            conn.Open()
+        OpenConnection()
+        If Not IsConnectionOpen() Then
+            Console.WriteLine("Không thể kết nối đến cơ sở dữ liệu.")
+            Return
+        End If
+        Try
             Dim query As String = "DELETE FROM users WHERE id = @id"
             Using cmd As New MySqlCommand(query, conn)
                 Console.Write("Enter ID to delete: ")
@@ -127,12 +129,20 @@ Module Program
                 cmd.ExecuteNonQuery()
                 Console.WriteLine("Data deleted successfully!")
             End Using
-        End Using
+        Catch ex As Exception
+            Console.WriteLine($"Error: {ex.Message}")
+        Finally
+            CloseConnection()
+        End Try
     End Sub
 
     Sub SearchData()
-        Using conn As New MySqlConnection(connectionString)
-            conn.Open()
+        OpenConnection()
+        If Not IsConnectionOpen() Then
+            Console.WriteLine("Không thể kết nối đến cơ sở dữ liệu.")
+            Return
+        End If
+        Try
             Dim query As String = "SELECT * FROM Users"
             Console.Write("Enter to search: ")
             Dim searchTerm As String = Console.ReadLine()
@@ -151,6 +161,10 @@ Module Program
                     End While
                 End Using
             End Using
-        End Using
+        Catch ex As Exception
+            Console.WriteLine($"Error: {ex.Message}")
+        Finally
+            CloseConnection()
+        End Try
     End Sub
 End Module
