@@ -42,20 +42,15 @@ Module Program
                 Return
             End If
 
-            Dim columns As String() = {"name", "email", "created_at", "updated_at"}
+            Dim columns As String() = UserModel.GetColumns()
             Dim columnList As String = String.Join(", ", columns)
             Dim valueLists As String = String.Join(", ", columns.Select(Function(c) "@" & c))
             Dim query As String = $"INSERT INTO users ({columnList}) VALUES ({valueLists})"
             Dim now As DateTime = DateTime.Now()
             Using cmd As New MySqlCommand(query, conn)
-                Console.Write("Enter Name: ")
-                Dim name As String = Console.ReadLine()
-                cmd.Parameters.AddWithValue("@name", name)
-                Console.Write("Enter Email: ")
-                Dim email As String = Console.ReadLine()
-                cmd.Parameters.AddWithValue("@email", email)
+                Dim user As New UserModel()
                 Dim validator As New UserRequest()
-                Dim errors As List(Of String) = validator.Validate(name, email)
+                Dim errors As List(Of String) = validator.Validate(user.name, user.email)
                 If errors.Count > 0 Then
                     Console.WriteLine("Errors:")
                     For Each mesErr In errors 
@@ -63,7 +58,9 @@ Module Program
                     Next
                     Exit Sub
                 End If
-                
+
+                cmd.Parameters.AddWithValue("@name", user.name)
+                cmd.Parameters.AddWithValue("@email", user.email)
                 cmd.Parameters.AddWithValue("@created_at", now)
                 cmd.Parameters.AddWithValue("@updated_at", now)
                 cmd.ExecuteNonQuery()

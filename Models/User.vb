@@ -5,13 +5,28 @@ Public Class UserModel
     Public Property Name As String
     Public Property Email As String
     Public Property Phone As String
+    Public Property CreatedAt As DateTime
+    Public Property UpdatedAt As DateTime
 
-    ' ' Constructor lấy dữ liệu từ form
-    ' Public Sub New(form As Form)
-    '     Me.Name = GetTextBoxValue(form, "txtName")
-    '     Me.Email = GetTextBoxValue(form, "txtEmail")
-    '     Me.Phone = GetTextBoxValue(form, "txtPhone")
-    ' End Sub
+    ' Constructor lấy dữ liệu từ Console
+    Public Sub New()
+        Console.Write("Enter Name: ")
+        Me.Name = Console.ReadLine()
+
+        Console.Write("Enter Email: ")
+        Me.Email = Console.ReadLine()
+
+        ' Console.Write("Nhập số điện thoại: ")
+        ' Me.Phone = Console.ReadLine()
+
+        Me.CreatedAt = DateTime.Now
+        Me.UpdatedAt = DateTime.Now
+    End Sub
+
+    ' Hàm trả về danh sách cột (thuộc tính) của UserModel
+    Public Shared Function GetColumns() As String()
+        Return New String() {"name", "email", "created_at", "updated_at"}
+    End Function
 
     ' ' Hàm lấy giá trị từ TextBox trong Form
     ' Private Function GetTextBoxValue(form As Form, fieldName As String) As String
