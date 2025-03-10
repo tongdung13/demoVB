@@ -67,8 +67,12 @@ Module Program
     End Sub
 
     Sub ReadData()
-        Using conn As New MySqlConnection(connectionString)
-            conn.Open()
+        Try
+            OpenConnection()
+            If Not IsConnectionOpen() Then
+                Console.WriteLine("Không thể kết nối đến cơ sở dữ liệu.")
+                Return
+            End If
             Dim query As String = "SELECT * FROM users"
             Using cmd As New MySqlCommand(query, conn)
                 Using reader As MySqlDataReader = cmd.ExecuteReader()
@@ -77,13 +81,23 @@ Module Program
                     End While
                 End Using
             End Using
-        End Using
+        Catch ex As Exception
+            Console.WriteLine($"Error: {ex.Message}")
+        Finally
+            CloseConnection()
+        End Try
     End Sub
 
     Sub UpdateData()
-        Using conn As New MySqlConnection(connectionString)
-            conn.Open()
-            Dim query As String = "UPDATE users SET name = @name, email = @email WHERE id = @id"
+        OpenConnection()
+        If Not IsConnectionOpen() Then
+            Console.WriteLine("Không thể kết nối đến cơ sở dữ liệu.")
+            Return
+        End If
+        Try
+            Dim columns As String() = {"name", "email", "updated_at"}
+            Dim columnList As String = String.Join(", ", columns.Select(Function(c) c & " = @" & c))
+            Dim query As String = "UPDATE users SET " & columnList & " WHERE id = @id"
             Using cmd As New MySqlCommand(query, conn)
                 Dim now As Datetime = Datetime.now()
                 Console.Write("Enter ID to update: ")
@@ -96,7 +110,11 @@ Module Program
                 cmd.ExecuteNonQuery()
                 Console.WriteLine("Data updated successfully!")
             End Using
-        End Using
+        Catch ex As Exception
+            Console.WriteLine($"Error: {ex.Message}")
+        Finally
+            CloseConnection()
+        End Try
     End Sub
 
     Sub DeleteData()
