@@ -24,8 +24,15 @@ Public Class UserModel
     End Sub
 
     ' Hàm trả về danh sách cột (thuộc tính) của UserModel
-    Public Shared Function GetColumns() As String()
-        Return New String() {"name", "email", "created_at", "updated_at"}
+    Public Shared Function GetColumns(Optional isUpdate As Boolean = False) As String()
+        Dim columns As String() = {"name", "email", "created_at", "updated_at"}
+        
+        ' Nếu là update thì bỏ created_at
+        If isUpdate Then
+            columns = columns.Where(Function(c) c <> "created_at").ToArray()
+        End If
+        
+        Return columns
     End Function
 
     ' ' Hàm lấy giá trị từ TextBox trong Form

@@ -50,7 +50,7 @@ Module Program
             Using cmd As New MySqlCommand(query, conn)
                 Dim user As New UserModel()
                 Dim validator As New UserRequest()
-                Dim errors As List(Of String) = validator.Validate(user.name, user.email)
+                Dim errors As List(Of String) = validator.Validate(user)
                 If errors.Count > 0 Then
                     Console.WriteLine("Errors:")
                     For Each mesErr In errors 
@@ -102,17 +102,26 @@ Module Program
             Return
         End If
         Try
-            Dim columns As String() = {"name", "email", "updated_at"}
+            Dim columns As String() = UserModel.GetColumns(True)
             Dim columnList As String = String.Join(", ", columns.Select(Function(c) c & " = @" & c))
             Dim query As String = "UPDATE users SET " & columnList & " WHERE id = @id"
             Using cmd As New MySqlCommand(query, conn)
                 Dim now As Datetime = Datetime.now()
                 Console.Write("Enter ID to update: ")
-                cmd.Parameters.AddWithValue("@id", Convert.ToInt32(Console.ReadLine()))
-                Console.Write("Enter New Name: ")
-                cmd.Parameters.AddWithValue("@name", Console.ReadLine())
-                Console.Write("Enter New Email: ")
-                cmd.Parameters.AddWithValue("@email", Console.ReadLine())
+                Dim userId = Convert.ToInt32(Console.ReadLine())
+                Dim user As New UserModel()
+                Dim validator As New UserRequest()
+                Dim errors As List(Of String) = validator.Validate(user, userId)
+                If errors.Count > 0 Then
+                    Console.WriteLine("Errors:")
+                    For Each mesErr In errors 
+                        Console.WriteLine(mesErr)
+                    Next
+                    Exit Sub
+                End If
+                cmd.Parameters.AddWithValue("@id", userId)
+                cmd.Parameters.AddWithValue("@name", user.name)
+                cmd.Parameters.AddWithValue("@email", user.email)
                 cmd.Parameters.AddWithValue("@updated_at", now)
                 cmd.ExecuteNonQuery()
                 Console.WriteLine("Data updated successfully!")
